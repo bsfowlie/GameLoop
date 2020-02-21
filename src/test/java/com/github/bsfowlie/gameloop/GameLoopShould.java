@@ -24,18 +24,29 @@ public final class GameLoopShould {
 
         loop.run();
 
-        verifyNoMoreInteractions(testGame);
+        then(testGame).should(times(0)).update();
     }
 
     @Test
     @DisplayName("invoke update once if game is running")
     public void invokeUpdateOnceIfGameIsRunning() {
 
-        given(testGame.isRunning()).willReturn(true);
+        given(testGame.isRunning()).willReturn(true, false);
 
         loop.run();
 
         then(testGame).should(atLeastOnce()).update();
+    }
+
+    @Test
+    @DisplayName("invoke update as long as game is running")
+    public void invokeUpdateAsLongAsGameIsRunning() {
+
+        given(testGame.isRunning()).willReturn(true, true, true, false);
+
+        loop.run();
+
+        then(testGame).should(times(3)).update();
     }
 
 }
