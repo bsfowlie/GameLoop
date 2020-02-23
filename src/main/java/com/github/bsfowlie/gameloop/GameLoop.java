@@ -13,6 +13,7 @@ public class GameLoop {
 
         while (game.isRunning()) {
             game.update();
+            game.render();
         }
     }
 

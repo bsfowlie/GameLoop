@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,6 +48,19 @@ public final class GameLoopShould {
         loop.run();
 
         then(testGame).should(times(3)).update();
+    }
+
+    @Test
+    @DisplayName("invoke render after update")
+    public void invokeRenderAfterUpdate() {
+
+        given(testGame.isRunning()).willReturn(true, false);
+
+        loop.run();
+
+        InOrder inOrder = inOrder(testGame);
+        then(testGame).should(inOrder, atLeastOnce()).update();
+        then(testGame).should(inOrder, atLeastOnce()).render();
     }
 
 }
