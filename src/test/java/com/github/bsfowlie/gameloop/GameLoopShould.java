@@ -2,11 +2,11 @@ package com.github.bsfowlie.gameloop;
 
 import static org.mockito.BDDMockito.*;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -14,8 +14,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("GameLoop should")
 public final class GameLoopShould {
 
-    @Mock private Game testGame;
-    @InjectMocks private GameLoop loop;
+    @Mock private Game<AnyTestInput> testGame;
+    @Mock private InputHandler<AnyTestInput> testInputHandler;
+    private GameLoop<AnyTestInput> loop;
+
+    @BeforeEach
+    public void setUpGameLoop() {
+        loop = new GameLoop<>(testGame, testInputHandler);
+    }
 
     @Test
     @DisplayName("do nothing if game is not running")
@@ -25,7 +31,7 @@ public final class GameLoopShould {
 
         loop.run();
 
-        then(testGame).should(times(0)).update();
+        then(testGame).should(times(0)).update(any());
     }
 
     @Test
@@ -36,7 +42,7 @@ public final class GameLoopShould {
 
         loop.run();
 
-        then(testGame).should(atLeastOnce()).update();
+        then(testGame).should(atLeastOnce()).update(any());
     }
 
     @Test
@@ -47,7 +53,7 @@ public final class GameLoopShould {
 
         loop.run();
 
-        then(testGame).should(times(3)).update();
+        then(testGame).should(times(3)).update(any());
     }
 
     @Test
@@ -59,9 +65,26 @@ public final class GameLoopShould {
         loop.run();
 
         InOrder inOrder = inOrder(testGame);
-        then(testGame).should(inOrder, atLeastOnce()).update();
+        then(testGame).should(inOrder, atLeastOnce()).update(any());
         then(testGame).should(inOrder, atLeastOnce()).render();
     }
 
+    @Test
+    @DisplayName("pass user input to update")
+    public void passUserInputToUpdate() {
+
+        final AnyTestInput input = new AnyTestInput();
+
+        given(testGame.isRunning()).willReturn(true, false);
+        given(testInputHandler.getInput()).willReturn(input);
+
+        loop.run();
+
+        then(testGame).should(times(1)).update(same(input));
+    }
+
+    private static class AnyTestInput {
+
+    }
 }
 
