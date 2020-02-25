@@ -1,5 +1,7 @@
 package com.github.bsfowlie.gameloop;
 
+import static com.github.bsfowlie.gameloop.GameClock.FRAME_DURATION;
+
 public class GameLoop<T> {
 
     private final Game<T> game;
@@ -7,6 +9,8 @@ public class GameLoop<T> {
     private final InputHandler<T> inputHandler;
 
     private final GameClock gameClock;
+
+    private int previousTick;
 
     public GameLoop(final Game<T> game,
                     final InputHandler<T> inputHandler,
@@ -21,20 +25,62 @@ public class GameLoop<T> {
 
     public void run() {
 
-        int previousTick = gameClock.getCurrentTick();
-        int lag = 0;
+        previousTick = tick();
+        int durationRemaining = 0;
+
         while (game.isRunning()) {
-            final int currentTick = gameClock.getCurrentTick();
-            lag += currentTick - previousTick;
-            T input = inputHandler.getInput();
-            while (lag >= GameClock.FRAME_DURATION) {
-                game.update(input);
-                input = null;
-                lag -= GameClock.FRAME_DURATION;
-            }
-            game.render();
-            previousTick = currentTick;
+
+            final int currentDuration = getDurationBetween(previousTick, tick()) + durationRemaining;
+            durationRemaining = updateGameAsNeededFor(currentDuration);
+            renderGame();
         }
+    }
+
+    private int tick() {
+
+        return gameClock.getCurrentTick();
+    }
+
+    private int getDurationBetween(final int lastTick, final int nextTick) {
+
+        try {
+
+            return nextTick - lastTick;
+        } finally {
+
+            previousTick = nextTick;
+        }
+    }
+
+    private int updateGameAsNeededFor(final int duration) {
+
+        int currentDuration = duration;
+        if (currentDuration >= FRAME_DURATION) {
+
+            game.update(withCurrentInput());
+            currentDuration -= FRAME_DURATION;
+            while (currentDuration >= FRAME_DURATION) {
+
+                game.update(withNoInput());
+                currentDuration -= FRAME_DURATION;
+            }
+        }
+        return currentDuration;
+    }
+
+    private void renderGame() {
+
+        game.render();
+    }
+
+    private T withCurrentInput() {
+
+        return inputHandler.getInput();
+    }
+
+    private T withNoInput() {
+
+        return null;
     }
 
 }
