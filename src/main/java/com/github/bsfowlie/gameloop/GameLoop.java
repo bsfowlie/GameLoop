@@ -24,11 +24,12 @@ public class GameLoop<T> {
         int previousTick = gameClock.getCurrentTick();
         int lag = 0;
         while (game.isRunning()) {
-            T input = inputHandler.getInput();
             final int currentTick = gameClock.getCurrentTick();
             lag += currentTick - previousTick;
+            T input = inputHandler.getInput();
             while (lag >= GameClock.FRAME_DURATION) {
                 game.update(input);
+                input = null;
                 lag -= GameClock.FRAME_DURATION;
             }
             game.render();
