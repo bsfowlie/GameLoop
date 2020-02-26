@@ -7,7 +7,7 @@
     <name>GameLoop</name>
     <artifactId>gameloop</artifactId>
     <groupId>com.github.bsfowlie</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <description>Game loop written with TDD</description>
 
