@@ -57,7 +57,7 @@
         <jdk.version>1.8</jdk.version>
         <jdk.release>8</jdk.release>
 
-        <assertj.version>3.15.0</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <junit.jupiter.version>5.6.0</junit.jupiter.version>
         <mockito.version>3.3.0</mockito.version>
 
